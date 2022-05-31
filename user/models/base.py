@@ -5,11 +5,14 @@ from django.utils import timezone
 
 from safedelete.models import SafeDeleteModel
 
+
 class GenderChoices(models.TextChoices):
     MALE = "MALE", _("Male")
     FEMALE = "FEMALE", _("Female")
     OTHER = "OTHER", _("Other")
     UNKNOWN = "UNKNOWN", _("Unknown")
+
+
 class BaseUser(AbstractBaseUser, SafeDeleteModel):
 
     class Meta:
