@@ -3,8 +3,14 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
+from safedelete.models import SafeDeleteModel
 
-class BaseUser(AbstractBaseUser):
+class GenderChoices(models.TextChoices):
+    MALE = "MALE", _("Male")
+    FEMALE = "FEMALE", _("Female")
+    OTHER = "OTHER", _("Other")
+    UNKNOWN = "UNKNOWN", _("Unknown")
+class BaseUser(AbstractBaseUser, SafeDeleteModel):
 
     class Meta:
         abstract = True
@@ -21,7 +27,9 @@ class BaseUser(AbstractBaseUser):
                                    help_text=_('Designates whether the user can log into this admin site.'))
     is_superuser = models.BooleanField(default=False,
                                        help_text=_('Designates whether this user has all permissions without explicitly assigning them.'))
-
+    gender = models.CharField(
+        max_length=7, choices=GenderChoices.choices, null=True
+    )
     created_at = models.DateTimeField(
         default=timezone.now,
         blank=False,
@@ -43,3 +51,11 @@ class BaseUser(AbstractBaseUser):
         choices=UserStatusChoice.choices,
         default=UserStatusChoice.INACTIVE,
     )
+
+    def delete(self, *args, **kwargs):
+        self.status = BaseUser.UserStatusChoice.REMOVED
+        super().delete(*args, **kwargs)
+
+    def undelete(self, *args, **kwargs):
+        self.status = BaseUser.UserStatusChoice.ACTIVE
+        super().undelete(*args, **kwargs)
