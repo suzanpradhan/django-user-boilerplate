@@ -59,3 +59,10 @@ class BaseUser(AbstractBaseUser, SafeDeleteModel):
     def undelete(self, *args, **kwargs):
         self.status = BaseUser.UserStatusChoice.ACTIVE
         super().undelete(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return self.email
+    
+    @property
+    def full_name(self) -> str:
+        return f"{self.first_name} {self.last_name}"
